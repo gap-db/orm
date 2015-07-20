@@ -1,0 +1,17 @@
+{
+    "name": "gap-db/orm",
+    "type": "library",
+    "description": "ORM",
+    "keywords": ["orm", "database"],
+    "homepage": "http://www.safanlab.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Safan Lab",
+            "homepage": "http://www.safanlab.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    }
+}
