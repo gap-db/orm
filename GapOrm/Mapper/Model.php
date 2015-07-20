@@ -68,7 +68,7 @@ class Model extends BaseModel
 
         $result = parent::beginAll();
 
-        $this->endProfiling('beginAllInArray', $result);
+        $this->endProfiling('beginAll', $result);
         $this->clearParams();
 
         return $result;
