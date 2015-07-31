@@ -85,6 +85,7 @@ class PdoDriver
     {
         if (is_null($this->dbh))
             throw new NoConnectionException();
+
         try{
             $this->sth = $this->dbh->prepare($query);
             if($this->sth->execute($params))
@@ -111,6 +112,7 @@ class PdoDriver
     {
         if(is_null($this->sth))
             throw new QueryFailedException();
+
         $result = $this->sth->fetch(\PDO::FETCH_OBJ);
         if($result)
             return $result;
@@ -123,6 +125,7 @@ class PdoDriver
     {
         if(is_null($this->sth))
             throw new QueryFailedException();
+
         return ($this->dbh->lastInsertId() > 0) ? $this->dbh->lastInsertId() : false;
     }
     /**
@@ -132,8 +135,10 @@ class PdoDriver
     {
         if(is_null($this->sth))
             throw new QueryFailedException();
+
         if($this->sth->rowCount() > 0)
             return $this->sth->rowCount();
+
         return false;
     }
     /**
@@ -143,8 +148,68 @@ class PdoDriver
     {
         if(is_null($this->sth))
             throw new QueryFailedException();
+
         if($this->debug === true)
             return false;
+
         return true;
+    }
+
+    /**
+     * This function checks if the table exists in the passed PDO database connection
+     *
+     * @param $tableName
+     * @return boolean - true if table was found, false if not
+     * @throws \GapOrm\Exceptions\NoConnectionException
+     */
+    public function tableExists($tableName) {if (is_null($this->dbh))
+        if (is_null($this->dbh))
+            throw new NoConnectionException();
+
+        $mrSql  = "SHOW TABLES LIKE :table_name";
+        $mrStmt = $this->dbh->prepare($mrSql);
+        //protect from injection attacks
+        $mrStmt->bindParam(":table_name", $tableName, \PDO::PARAM_STR);
+
+        $sqlResult = $mrStmt->execute();
+        if ($sqlResult) {
+            $row = $mrStmt->fetch(\PDO::FETCH_NUM);
+            if ($row[0])
+                return true;
+
+            return false;
+        }
+        else
+            return false;
+    }
+
+    /**
+     * Create table
+     *
+     * @param $tableName
+     * @param $fieldString
+     */
+    public function createTable($tableName, $fieldString){
+        try {
+            $sql = 'CREATE table ' . $tableName . ' ('. $fieldString . ');';
+            $this->dbh->exec($sql);
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    /**
+     * @param $tableName
+     * @param $fieldString
+     */
+    public function createField($tableName, $fieldString){
+        try {
+            $sql = 'ALTER TABLE ' . $tableName . ' ADD ' . $fieldString . ';';
+            $this->dbh->exec($sql);
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage();
+        }
     }
 }
