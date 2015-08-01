@@ -201,7 +201,7 @@ class BaseModel extends OrmMapper
      * @return mixed
      * @throws NoPkException
      */
-    protected function getPK($require = true){
+    public function getPK($require = true){
         foreach ($this->fields as $field) {
             if ($field->pk()) {
                 return $field;
