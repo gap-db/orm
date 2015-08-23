@@ -4,7 +4,7 @@ namespace GapOrm\Drivers;
 use GapOrm\Exceptions\ConnectionParamsNotExistsException;
 use GapOrm\Exceptions\NoConnectionException;
 use GapOrm\Exceptions\PDOException;
-use Safan\DatabaseManager\Drivers\Pdo\Exceptions\QueryFailedException;
+use GapOrm\Exceptions\QueryFailedException;
 
 class PdoDriver
 {
