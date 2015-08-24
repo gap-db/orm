@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace GapOrm\Mapper;
 
 use GapOrm\Exceptions\NoPKException;
@@ -19,14 +27,17 @@ class BaseModel extends OrmMapper
     CONST FIELD_TYPE_STR_ARRAY = 6;
     CONST FIELD_TYPE_INT_ARRAY = 7;
     CONST FIELD_TYPE_OBJ = 8;
+
     /**
      * @var array
      */
     private static $instances = array();
+
     /**
      * @var array
      */
     private $fields = array();
+
     /**
      * Get Model instance
      *
@@ -39,24 +50,29 @@ class BaseModel extends OrmMapper
 
         return self::$instances[$className];
     }
+
     /**
      * Add Fields
+     *
+     * @param $field
+     * @throws \GapOrm\Exceptions\WrongFieldClassException
      */
-    protected function addField($field)
-    {
+    protected function addField($field){
         if (!$field instanceof FieldMapper)
             throw new WrongFieldClassException();
+
         $this->fields[] = $field;
     }
+
     /**
      * Get all fields
      *
      * @return array
      */
-    public function getFields()
-    {
+    public function getFields(){
         return $this->fields;
     }
+
     /**
      * Escape
      *
@@ -64,10 +80,10 @@ class BaseModel extends OrmMapper
      * @param bool $quotes
      * @return string
      */
-    private function escape($str, $quotes = true)
-    {
+    private function escape($str, $quotes = true){
         return $quotes ? sprintf('%s', $str) : $str;
     }
+
     /**
      * Check & convert Fields for Select
      *
@@ -75,8 +91,7 @@ class BaseModel extends OrmMapper
      * @return mixed
      * @throws \GapOrm\Exceptions\TypeNotExistException
      */
-    private function convertFromDB($obj)
-    {
+    private function convertFromDB($obj){
         foreach ($this->fields as $field) {
             switch ($field->type()) {
                 case self::FIELD_TYPE_BOOL :
@@ -128,15 +143,20 @@ class BaseModel extends OrmMapper
 
         return $obj;
     }
+
     /**
      * Check & convert Fields for Insert, Update
+     *
+     * @param $obj
+     * @return object
+     * @throws \GapOrm\Exceptions\TypeNotExistException
      */
-    private function convertToDB($obj)
-    {
+    private function convertToDB($obj){
         $o = $this->getEmptyObject();
         foreach ($this->fields as $field) {
             if (!property_exists($obj, $field->identifier()))
                 continue;
+
             if (is_null($obj->{$field->identifier()})) {
                 $o->{$field->identifier()} = 'NULL';
                 continue;
@@ -185,15 +205,16 @@ class BaseModel extends OrmMapper
 
         return $o;
     }
+
     /**
      * Create new object
      *
      * @return object
      */
-    public function getEmptyObject()
-    {
+    public function getEmptyObject(){
         return new \stdClass();
     }
+
     /**
      * Get primary key
      *
@@ -203,23 +224,24 @@ class BaseModel extends OrmMapper
      */
     public function getPK($require = true){
         foreach ($this->fields as $field) {
-            if ($field->pk()) {
+            if ($field->pk())
                 return $field;
-            }
         }
 
         if ($require)
             throw new NoPKException();
     }
+
     /**
      * Create Query
      *
      * @param bool $cache
      */
     private function createQuery($cache = false){
-        $q = '';
-        $i = 0;
+        $q           = '';
+        $i           = 0;
         $uniqueArray = array();
+
         foreach ($this->fields as $field){
             if(in_array($field->identifier(), $uniqueArray))
                 $q .= ',' . $field->table() . '.' . $field->identifier() . ' AS ' . $field->table() . ucfirst($field->identifier());
@@ -236,13 +258,13 @@ class BaseModel extends OrmMapper
         $q .= ' FROM ' . $this->table();
 
         if(!$cache){
-            foreach ($this->getJoins() as $joinKey => $joinValue){
+            foreach ($this->getJoins() as $joinKey => $joinValue)
                 $q .= $joinValue;
-            }
         }
 
         $this->setQuery($q);
     }
+
     /**
      * Get by Primary Key
      *
@@ -270,6 +292,7 @@ class BaseModel extends OrmMapper
 
         return null;
     }
+
     /**
      * Get data by fieldName
      *
@@ -294,6 +317,7 @@ class BaseModel extends OrmMapper
 
         return $toReturn;
     }
+
     /**
      * Get all data from model
      *
@@ -318,6 +342,7 @@ class BaseModel extends OrmMapper
 
         return $toReturn;
     }
+
     /**
      * Get once result
      *
@@ -327,8 +352,8 @@ class BaseModel extends OrmMapper
         $this->createQuery();
 
         GapOrm::getDriver()->query($this->getQuery(), array());
-        $obj = GapOrm::getDriver()->selectOnce();
 
+        $obj = GapOrm::getDriver()->selectOnce();
         $obj = $this->convertFromDB($obj);
 
         if($obj)
@@ -336,6 +361,7 @@ class BaseModel extends OrmMapper
 
         return null;
     }
+
     /**
      * Delete record
      *
@@ -343,9 +369,9 @@ class BaseModel extends OrmMapper
      * @return bool
      */
     public function delete($obj){
-        $o = $this->convertToDB($obj);
-        $pk = $this->getPK();
-        $sql = 'DELETE FROM ' . $this->table() . ' WHERE ' . $pk->identifier() . ' = ?';
+        $o      = $this->convertToDB($obj);
+        $pk     = $this->getPK();
+        $sql    = 'DELETE FROM ' . $this->table() . ' WHERE ' . $pk->identifier() . ' = ?';
         $params = array($o->{$pk->identifier()});
 
         GapOrm::getDriver()->query($sql, $params);
@@ -356,6 +382,7 @@ class BaseModel extends OrmMapper
 
         return false;
     }
+
     /**
      * IN
      *
@@ -365,7 +392,7 @@ class BaseModel extends OrmMapper
      */
     public function in($fieldName, $fieldArray = array()){
         $fieldArray = array_map(function($v) { return sprintf('"%s"', $v); }, $fieldArray);
-        $tableName = '';
+        $tableName  = '';
 
         if(strpos($fieldName, '.') === false)
             $tableName = $this->table() . '.';
@@ -382,16 +409,18 @@ class BaseModel extends OrmMapper
      * @param array $differential
      * @return $this
      */
-    public function where($query = array(), $differential = array()){
+    public function where($query = [], $differential = []){
         if(!empty($query)){
             $i = 0;
             $where = $this->getWhere();
 
             foreach($query as $key => $value){
                 $isLike = false; // Is Differential like
+
                 if(isset($differential[$i])){
                     if($differential[$i] == 'like')
                         $isLike = true;
+
                     $different = $differential[$i];
                 }
                 else
@@ -399,6 +428,7 @@ class BaseModel extends OrmMapper
 
                 // add separator for join tables
                 $tableName = '';
+
                 if(strpos($key, '.') === false)
                     $tableName = $this->table() . '.';
 
@@ -414,6 +444,7 @@ class BaseModel extends OrmMapper
                     else
                         $where .= ' WHERE ' . $tableName . $key . $different . '?';
                 }
+
                 $i++;
                 if(!$isLike)
                     $this->setParams($value);
@@ -424,6 +455,7 @@ class BaseModel extends OrmMapper
 
         return $this;
     }
+
     /**
      * JOIN
      *
@@ -433,7 +465,7 @@ class BaseModel extends OrmMapper
      * @param array $joinTableFields
      * @return $this
      */
-    public function join($tableName, $joinType = 'left', $on, $joinTableFields = array()){
+    public function join($tableName, $joinType = 'left', $on, $joinTableFields = []){
         switch (strtolower($joinType)){
             case 'left':
                 $joinType = ' LEFT JOIN ';
@@ -456,18 +488,19 @@ class BaseModel extends OrmMapper
 
         return $this;
     }
+
     /**
      * ORDER BY
      *
      * @param array $query
      * @return $this
      */
-    public function orderBy($query = array()){
+    public function orderBy($query = []){
         if(!empty($query)){
             $i = 0;
             foreach($query as $key => $value){
                 $tableName = '';
-                $orderBy = $this->getOrderBy();
+                $orderBy   = $this->getOrderBy();
 
                 if(strpos($key, '.') === false)
                     $tableName = $this->table() . '.';
@@ -484,13 +517,14 @@ class BaseModel extends OrmMapper
 
         return $this;
     }
+
     /**
      * GROUP BY
      *
      * @param array $query
      * @return $this
      */
-    public function groupBy($query = array()){
+    public function groupBy($query = []){
         if(!empty($query)){
             $i = 0;
             $groupBy = $this->getOrderBy();
@@ -509,6 +543,7 @@ class BaseModel extends OrmMapper
 
         return $this;
     }
+
     /**
      * LIMIT
      *
@@ -524,6 +559,7 @@ class BaseModel extends OrmMapper
 
         return $this;
     }
+
     /**
      * RUN
      *
@@ -534,9 +570,8 @@ class BaseModel extends OrmMapper
         $this->createQuery(true);
         $query = $this->getQuery();
 
-        foreach ($this->getJoins() as $joinValue){
+        foreach ($this->getJoins() as $joinValue)
             $query .= $joinValue;
-        }
 
         if(!is_null($this->getWhere())){
             $query .= $this->getWhere();
@@ -573,7 +608,7 @@ class BaseModel extends OrmMapper
                 return array();
         }
 
-        $toReturn = array();
+        $toReturn = [];
 
         if($oneRecord)
             return $this->convertFromDB($objects);
@@ -587,6 +622,7 @@ class BaseModel extends OrmMapper
 
         return $toReturn;
     }
+
     /**
      * RUN Once
      *
@@ -595,6 +631,7 @@ class BaseModel extends OrmMapper
     public function runOnce(){
         return $this->run(true);
     }
+
     /**
      * UPDATE & INSERT
      *
@@ -603,18 +640,19 @@ class BaseModel extends OrmMapper
      * @param bool $isUpdate
      * @return bool
      */
-    public function save($obj, $where = array(), $isUpdate = false){
-        $obj = $this->convertToDB($obj);
-        $PK = $this->getPK();
-        $params = array();
+    public function save($obj, $where = [], $isUpdate = false){
+        $obj    = $this->convertToDB($obj);
+        $PK     = $this->getPK();
+        $params = [];
 
         if(!empty($where)){
-            $i = 0;
+            $i                  = 0;
             $paramsForSqlString = '';
 
             foreach ($this->fields as $field) {
                 if ($field->noUpdate() || !isset($obj->{$field->identifier()}))
                     continue;
+
                 $params[':' . $field->identifier()] = $obj->{$field->identifier()};
 
                 if($i>0)
@@ -654,12 +692,13 @@ class BaseModel extends OrmMapper
         }
         if((property_exists($obj, $PK->identifier()) && $PK->noInsert()) || $isUpdate){
             //Update
-            $i = 0;
+            $i                  = 0;
             $paramsForSqlString = '';
 
             foreach ($this->fields as $field) {
                 if ($field->noUpdate() || !isset($obj->{$field->identifier()}))
                     continue;
+
                 $params[':' . $field->identifier()] = $obj->{$field->identifier()};
 
                 if($i>0)
@@ -671,6 +710,7 @@ class BaseModel extends OrmMapper
             }
 
             $params[':' . $PK->identifier()] = $obj->{$PK->identifier()};
+
             $sql = 'UPDATE ' . $this->table() . ' SET ' . $paramsForSqlString . ' WHERE '. $PK->identifier() .'=:'. $PK->identifier();
 
             if($this->isQueryDumpEnabled())
@@ -689,13 +729,14 @@ class BaseModel extends OrmMapper
         }
         else{
             //Insert
-            $i = 0;
+            $i                  = 0;
             $paramsForSqlString = '(';
-            $valueForSqlString = '(';
+            $valueForSqlString  = '(';
 
             foreach ($this->fields as $field) {
                 if ($field->noInsert() || !isset($obj->{$field->identifier()}))
                     continue;
+
                 $params[':' . $field->identifier()] = $obj->{$field->identifier()};
 
                 if($i>0){
@@ -711,8 +752,8 @@ class BaseModel extends OrmMapper
             }
 
             $paramsForSqlString .= ')';
-            $valueForSqlString .= ')';
-            $sql = 'INSERT INTO ' . $this->table() . ' ' . $paramsForSqlString . ' VALUES ' . $valueForSqlString;
+            $valueForSqlString  .= ')';
+            $sql                 = 'INSERT INTO ' . $this->table() . ' ' . $paramsForSqlString . ' VALUES ' . $valueForSqlString;
 
             if($this->isQueryDumpEnabled())
                 var_dump($sql);

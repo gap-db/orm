@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace GapOrm\Commands;
 
 use GapOrm\Drivers\PdoDriver;
@@ -34,10 +42,12 @@ class SynchronizeController
         $tableName = $modelObj->table();
         // check table, add if not exist
         $existTable = PdoDriver::getInstance()->tableExists($tableName);
+
         if(!$existTable){
             $this->createTable($tableName, $modelObj->getFields());
             CliManager::getMessage('Created table ' . $tableName);
         }
+
         // get database table data and check
         PdoDriver::getInstance()->query('SHOW COLUMNS FROM ' . $tableName);
         $dbFields = PdoDriver::getInstance()->selectAll();
@@ -60,6 +70,7 @@ class SynchronizeController
             if(!in_array($modelField->identifier(), $dbFieldNames)){
                 // Add new fields to db table
                 $previousField = false;
+
                 if(isset($modelObj->getFields()[$key-1]))
                     $previousField = $modelObj->getFields()[$key-1];
 

@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace GapOrm\Drivers;
 
 use GapOrm\Exceptions\ConnectionParamsNotExistsException;
@@ -44,6 +52,7 @@ class PdoDriver
         $class_name = __CLASS__;
         if(!isset(self::$instance[$class_name]) )
             self::$instance[$class_name] = new $class_name();
+
         return self::$instance[$class_name];
     }
 
@@ -57,9 +66,8 @@ class PdoDriver
         $dbUser = isset($config['user']) ? $config['user'] : false;
         $dbPass = isset($config['password']) ? $config['password'] : false;
 
-        if(isset($config['debug'])){
+        if(isset($config['debug']))
             $this->debug = $config['debug'];
-        }
 
         if(!$dbHost || !$dbName || !$dbUser || !$dbPass)
             throw new ConnectionParamsNotExistsException();
@@ -69,11 +77,12 @@ class PdoDriver
             $this->dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
         }
         catch (PDOException $e) {
-            if($this->debug === true){
+            if($this->debug === true)
                 echo "\r\n<!-- PDO CONNECTION ERROR: " . $e->getMessage() . "-->\r\n";
-            }
+
             $this->connectionError = "Error!: " . $e->getMessage() . "<br/>";
-            $this->dbh = null;
+            $this->dbh             = null;
+
             return;
         }
     }
@@ -81,58 +90,73 @@ class PdoDriver
     /**
      * Query
      */
-    public function query($query, $params=array())
-    {
+    public function query($query, $params=array()){
         if (is_null($this->dbh))
             throw new NoConnectionException();
 
         try{
             $this->sth = $this->dbh->prepare($query);
+
             if($this->sth->execute($params))
                 return $this->debug = false;
+
             return $this->debug = true;
         }
         catch (PDOException $e){
             return false;
         }
     }
+
     /**
      * Select All
+     *
+     * @return mixed
+     * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function selectAll()
-    {
+    public function selectAll(){
         if(is_null($this->sth))
             throw new QueryFailedException();
+
         return $this->sth->fetchAll(\PDO::FETCH_OBJ);
     }
+
     /**
      * Select once
+     *
+     * @return null
+     * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function selectOnce()
-    {
+    public function selectOnce(){
         if(is_null($this->sth))
             throw new QueryFailedException();
 
         $result = $this->sth->fetch(\PDO::FETCH_OBJ);
+
         if($result)
             return $result;
+
         return null;
     }
     /**
      * Insert
+     *
+     * @return bool
+     * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function insert()
-    {
+    public function insert(){
         if(is_null($this->sth))
             throw new QueryFailedException();
 
         return ($this->dbh->lastInsertId() > 0) ? $this->dbh->lastInsertId() : false;
     }
+
     /**
      * Update
+     *
+     * @return bool
+     * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function update()
-    {
+    public function update(){
         if(is_null($this->sth))
             throw new QueryFailedException();
 
@@ -141,11 +165,14 @@ class PdoDriver
 
         return false;
     }
+
     /**
      * Delete
+     *
+     * @return bool
+     * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function delete()
-    {
+    public function delete(){
         if(is_null($this->sth))
             throw new QueryFailedException();
 
@@ -172,15 +199,14 @@ class PdoDriver
         $mrStmt->bindParam(":table_name", $tableName, \PDO::PARAM_STR);
 
         $sqlResult = $mrStmt->execute();
+
         if ($sqlResult) {
             $row = $mrStmt->fetch(\PDO::FETCH_NUM);
             if ($row[0])
                 return true;
-
-            return false;
         }
-        else
-            return false;
+
+        return false;
     }
 
     /**
