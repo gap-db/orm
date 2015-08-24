@@ -31,12 +31,12 @@ class BaseModel extends OrmMapper
     /**
      * @var array
      */
-    private static $instances = array();
+    private static $instances = [];
 
     /**
      * @var array
      */
-    private $fields = array();
+    private $fields = [];
 
     /**
      * Get Model instance
@@ -121,7 +121,7 @@ class BaseModel extends OrmMapper
                 case self::FIELD_TYPE_STR_ARRAY :
                     $delimiter = '(^!)';
                     if (empty($obj->{$field->identifier()}))
-                        $obj->{$field->identifier()} = array();
+                        $obj->{$field->identifier()} = [];
                     else
                         $obj->{$field->identifier()} = array_map(function($v) use ($delimiter) {
                             return stripslashes($v);
@@ -129,7 +129,7 @@ class BaseModel extends OrmMapper
                     break;
                 case self::FIELD_TYPE_INT_ARRAY :
                     $arr = empty($obj->{$field->identifier()})
-                        ? array() : explode(',', $obj->{$field->identifier()});
+                        ? [] : explode(',', $obj->{$field->identifier()});
                     $obj->{$field->identifier()} = array_map(function($v) { return (int) str_replace('\'', '', $v); }, $arr);
                     break;
                 case self::FIELD_TYPE_OBJ :
@@ -240,7 +240,7 @@ class BaseModel extends OrmMapper
     private function createQuery($cache = false){
         $q           = '';
         $i           = 0;
-        $uniqueArray = array();
+        $uniqueArray = [];
 
         foreach ($this->fields as $field){
             if(in_array($field->identifier(), $uniqueArray))
@@ -279,7 +279,7 @@ class BaseModel extends OrmMapper
         $this->setQuery($q);
         $this->setParams($pk);
 
-        GapOrm::getDriver()->query($this->getQuery(), array($pk));
+        GapOrm::getDriver()->query($this->getQuery(), [$pk]);
         $obj = GapOrm::getDriver()->selectOnce();
 
         if(is_null($obj))
@@ -300,8 +300,8 @@ class BaseModel extends OrmMapper
      * @param array $fieldArray
      * @return array
      */
-    public function beginAllInArray($fieldName, $fieldArray = array()){
-        $toReturn = array();
+    public function beginAllInArray($fieldName, $fieldArray = []){
+        $toReturn = [];
         $this->createQuery();
 
         if(empty($fieldArray))
@@ -326,13 +326,13 @@ class BaseModel extends OrmMapper
     public function beginAll(){
         $this->createQuery();
 
-        GapOrm::getDriver()->query($this->getQuery(), array());
+        GapOrm::getDriver()->query($this->getQuery(), []);
         $objects = GapOrm::getDriver()->selectAll();
 
         if(empty($objects))
-            return array();
+            return [];
 
-        $toReturn = array();
+        $toReturn = [];
 
         foreach($objects as $object){
             $obj = $this->convertFromDB($object);
@@ -351,7 +351,7 @@ class BaseModel extends OrmMapper
     public function beginOnce(){
         $this->createQuery();
 
-        GapOrm::getDriver()->query($this->getQuery(), array());
+        GapOrm::getDriver()->query($this->getQuery(), []);
 
         $obj = GapOrm::getDriver()->selectOnce();
         $obj = $this->convertFromDB($obj);
@@ -372,7 +372,7 @@ class BaseModel extends OrmMapper
         $o      = $this->convertToDB($obj);
         $pk     = $this->getPK();
         $sql    = 'DELETE FROM ' . $this->table() . ' WHERE ' . $pk->identifier() . ' = ?';
-        $params = array($o->{$pk->identifier()});
+        $params = [$o->{$pk->identifier()}];
 
         GapOrm::getDriver()->query($sql, $params);
         $query = GapOrm::getDriver()->delete();
@@ -390,7 +390,7 @@ class BaseModel extends OrmMapper
      * @param array $fieldArray
      * @return $this
      */
-    public function in($fieldName, $fieldArray = array()){
+    public function in($fieldName, $fieldArray = []){
         $fieldArray = array_map(function($v) { return sprintf('"%s"', $v); }, $fieldArray);
         $tableName  = '';
 
@@ -605,7 +605,7 @@ class BaseModel extends OrmMapper
         else{
             $objects = GapOrm::getDriver()->selectAll();
             if(empty($objects))
-                return array();
+                return [];
         }
 
         $toReturn = [];

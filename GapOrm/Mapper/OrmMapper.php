@@ -223,8 +223,8 @@ class OrmMapper
         $this->orderBy    = null;
         $this->groupBy    = null;
         $this->in         = null;
-        $this->params     = array();
-        $this->joins      = array();
+        $this->params     = [];
+        $this->joins      = [];
         $this->query      = '';
     }
 

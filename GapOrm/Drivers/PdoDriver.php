@@ -39,7 +39,7 @@ class PdoDriver
     /**
      * @var array
      */
-    private static $instance = array();
+    private static $instance = [];
 
     private function __construct(){}
 
@@ -73,7 +73,7 @@ class PdoDriver
             throw new ConnectionParamsNotExistsException();
 
         try {
-            $this->dbh = new \PDO('mysql:host='.$dbHost.';dbname=' . $dbName, $dbUser, $dbPass, array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+            $this->dbh = new \PDO('mysql:host='.$dbHost.';dbname=' . $dbName, $dbUser, $dbPass, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"]);
             $this->dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
         }
         catch (PDOException $e) {
@@ -89,8 +89,13 @@ class PdoDriver
 
     /**
      * Query
+     *
+     * @param $query
+     * @param array $params
+     * @return bool
+     * @throws \GapOrm\Exceptions\NoConnectionException
      */
-    public function query($query, $params=array()){
+    public function query($query, $params = []){
         if (is_null($this->dbh))
             throw new NoConnectionException();
 

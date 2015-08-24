@@ -55,7 +55,7 @@ class Model extends BaseModel
      * @param array $fieldArray
      * @return array
      */
-    public function beginAllInArray($fieldName, $fieldArray = array()){
+    public function beginAllInArray($fieldName, $fieldArray = []){
         $this->startProfiling();
 
         $result = parent::beginAllInArray($fieldName, $fieldArray);
@@ -156,7 +156,7 @@ class Model extends BaseModel
      * @param bool $isUpdate
      * @return bool
      */
-    public function save($obj, $where = array(), $isUpdate = false){
+    public function save($obj, $where = [], $isUpdate = false){
         $this->startProfiling();
 
         $result = parent::save($obj, $where, $isUpdate);
