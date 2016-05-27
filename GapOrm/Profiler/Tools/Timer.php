@@ -19,7 +19,8 @@ class Timer
     /**
      * Start time calculator
      */
-    public function start(){
+    public function start()
+    {
         $time = microtime();
         $time = explode(' ', $time);
         $time = $time[1] + $time[0];
@@ -29,7 +30,8 @@ class Timer
     /**
      * @return float
      */
-    public function calculate(){
+    public function calculate()
+    {
         $time = microtime();
         $time = explode(' ', $time);
         $time = $time[1] + $time[0];

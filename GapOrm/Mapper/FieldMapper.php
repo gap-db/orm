@@ -73,7 +73,8 @@ class FieldMapper
      * @param $type
      * @param int $length for Model synchronization
      */
-    public function __construct($table, $identifier, $type, $length = 0){
+    public function __construct($table, $identifier, $type, $length = 0)
+    {
         $this->identifier = $identifier;
         $this->type       = $type;
         $this->sql        = $identifier;
@@ -83,23 +84,29 @@ class FieldMapper
         $this->noUpdate   = false;
         $this->pk         = false;
     }
+
     /**
      * @param null $noInsert
      * @return bool
      */
-    public function noInsert($noInsert = NULL){
-        if (!is_null($noInsert))
+    public function noInsert($noInsert = NULL)
+    {
+        if (!is_null($noInsert)) {
             $this->noInsert = (bool)$noInsert;
+        }
 
         return $this->noInsert;
     }
+
     /**
      * @param null $noUpdate
      * @return bool
      */
-    public function noUpdate($noUpdate = NULL){
-        if (!is_null($noUpdate))
+    public function noUpdate($noUpdate = NULL)
+    {
+        if (!is_null($noUpdate)) {
             $this->noUpdate = (bool)$noUpdate;
+        }
 
         return $this->noUpdate;
     }
@@ -108,9 +115,11 @@ class FieldMapper
      * @param null $pk
      * @return bool
      */
-    public function pk($pk = NULL){
-        if (!is_null($pk))
+    public function pk($pk = NULL)
+    {
+        if (!is_null($pk)) {
             $this->pk = (bool)$pk;
+        }
 
         return $this->pk;
     }
@@ -119,9 +128,11 @@ class FieldMapper
      * @param null $sql
      * @return null
      */
-    public function sql($sql = NULL){
-        if (!is_null($sql))
+    public function sql($sql = NULL)
+    {
+        if (!is_null($sql)) {
             $this->sql = $sql;
+        }
 
         return $this->sql;
     }
@@ -130,9 +141,11 @@ class FieldMapper
      * @param null $identifier
      * @return null
      */
-    public function identifier($identifier = NULL){
-        if (!is_null($identifier))
+    public function identifier($identifier = NULL)
+    {
+        if (!is_null($identifier)) {
             $this->identifier = $identifier;
+        }
 
         return $this->identifier;
     }
@@ -140,7 +153,8 @@ class FieldMapper
     /**
      * @return int
      */
-    public function length(){
+    public function length()
+    {
         return $this->length;
     }
 
@@ -148,9 +162,11 @@ class FieldMapper
      * @param null $type
      * @return null
      */
-    public function type($type = NULL){
-        if (!is_null($type))
+    public function type($type = NULL)
+    {
+        if (!is_null($type)) {
             $this->type = $type;
+        }
 
         return $this->type;
     }
@@ -159,9 +175,11 @@ class FieldMapper
      * @param null $table
      * @return null
      */
-    public function table($table = NULL){
-        if (!is_null($table))
+    public function table($table = NULL)
+    {
+        if (!is_null($table)) {
             $this->table = $table;
+        }
 
         return $this->table;
     }

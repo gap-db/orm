@@ -35,9 +35,11 @@ class BaseProfiler
      * @return mixed
      * @throws \GapOrm\Exceptions\ProfilerParamsNotExistsException
      */
-    public function getOptions($key){
-        if(!isset($this->options[$key]) || empty($this->options[$key]))
+    public function getOptions($key)
+    {
+        if (!isset($this->options[$key]) || empty($this->options[$key])) {
             throw new ProfilerParamsNotExistsException('Profiler ' . $key . ' params is not exist');
+        }
 
         return $this->options[$key];
     }
@@ -45,7 +47,8 @@ class BaseProfiler
     /**
      * @return array
      */
-    public function getAllOptions(){
+    public function getAllOptions()
+    {
         return $this->options;
     }
 
@@ -53,7 +56,8 @@ class BaseProfiler
      * @param $key
      * @param $options
      */
-    public function setOptions($key, $options){
+    public function setOptions($key, $options)
+    {
         $attrObj = $this->convertAttributes($options);
 
         $this->options[$key] = $attrObj;
@@ -63,7 +67,8 @@ class BaseProfiler
      * @param $options
      * @return \stdClass
      */
-    private function convertAttributes($options){
+    private function convertAttributes($options)
+    {
         $attrObj = new \stdClass();
         foreach($this->attributes as $attribute)
             $attrObj->{$attribute} = isset($options[$attribute]) ? $options[$attribute] : null;

@@ -24,9 +24,11 @@ class Model extends BaseModel
      * @param string $className
      * @return mixed
      */
-    public static function instance($className = __CLASS__){
-        if(!isset(self::$instances[$className]))
+    public static function instance($className = __CLASS__)
+    {
+        if (!isset(self::$instances[$className])) {
             self::$instances[$className] = new $className;
+        }
 
         return self::$instances[$className];
     }
@@ -37,7 +39,8 @@ class Model extends BaseModel
      * @param $pk
      * @return null
      */
-    public function findByPK($pk){
+    public function findByPK($pk)
+    {
         $this->startProfiling();
 
         $result = parent::findByPK($pk);
@@ -55,7 +58,8 @@ class Model extends BaseModel
      * @param array $fieldArray
      * @return array
      */
-    public function beginAllInArray($fieldName, $fieldArray = []){
+    public function beginAllInArray($fieldName, $fieldArray = [])
+    {
         $this->startProfiling();
 
         $result = parent::beginAllInArray($fieldName, $fieldArray);
@@ -71,7 +75,8 @@ class Model extends BaseModel
      *
      * @return array
      */
-    public function beginAll(){
+    public function beginAll()
+    {
         $this->startProfiling();
 
         $result = parent::beginAll();
@@ -87,7 +92,8 @@ class Model extends BaseModel
      *
      * @return object
      */
-    public function beginOnce(){
+    public function beginOnce()
+    {
         $this->startProfiling();
 
         $result = parent::beginOnce();
@@ -104,7 +110,8 @@ class Model extends BaseModel
      * @param $obj
      * @return bool
      */
-    public function delete($obj){
+    public function delete($obj)
+    {
         $this->startProfiling();
 
         $result = parent::delete($obj);
@@ -121,7 +128,8 @@ class Model extends BaseModel
      * @param bool $oneRecord
      * @return array
      */
-    public function run($oneRecord = false){
+    public function run($oneRecord = false)
+    {
         $this->startProfiling();
 
         $result = parent::run($oneRecord);
@@ -137,7 +145,8 @@ class Model extends BaseModel
      *
      * @return array
      */
-    public function runOnce(){
+    public function runOnce()
+    {
         $this->startProfiling();
 
         $result = parent::run(true);
@@ -156,7 +165,8 @@ class Model extends BaseModel
      * @param bool $isUpdate
      * @return bool
      */
-    public function save($obj, $where = [], $isUpdate = false){
+    public function save($obj, $where = [], $isUpdate = false)
+    {
         $this->startProfiling();
 
         $result = parent::save($obj, $where, $isUpdate);
@@ -170,7 +180,8 @@ class Model extends BaseModel
     /**
      * Start profiling
      */
-    private function startProfiling(){
+    private function startProfiling()
+    {
         $profiler = Safan::handler()->getObjectManager()->get('gapOrmProfiler');
         $profiler->getTimer()->start();
     }
@@ -179,7 +190,8 @@ class Model extends BaseModel
      * @param $profilerType
      * @param $result
      */
-    private function endProfiling($profilerType, $result){
+    private function endProfiling($profilerType, $result)
+    {
         $profiler = Safan::handler()->getObjectManager()->get('gapOrmProfiler');
 
         $profileOptions = [

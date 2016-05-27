@@ -27,7 +27,8 @@ class Profiler extends BaseProfiler
     /**
      * Set instances
      */
-    public function __construct(){
+    public function __construct()
+    {
         $this->timer        = new Timer();
         $this->queryManager = new QueryManager();
     }
@@ -35,14 +36,16 @@ class Profiler extends BaseProfiler
     /**
      * @return Timer
      */
-    public function getTimer(){
+    public function getTimer()
+    {
         return $this->timer;
     }
 
     /**
      * @return QueryManager
      */
-    public function getQueryManager(){
+    public function getQueryManager()
+    {
         return $this->queryManager;
     }
 }

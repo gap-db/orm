@@ -35,10 +35,11 @@ class GapOrm
      * @param $dbConfig
      * @throws Exceptions\DriverNotFound
      */
-    public function init($dbConfig){
+    public function init($dbConfig)
+    {
         $profiler = new Profiler();
 
-        if(isset($this->drivers[$dbConfig['driver']])){
+        if (isset($this->drivers[$dbConfig['driver']])) {
             $driverClass          = $this->drivers[$dbConfig['driver']];
             self::$driverInstance = $driverClass::getInstance();
 
@@ -52,9 +53,9 @@ class GapOrm
 
             $profiler->setOptions('dbConnection', $profilerOptions);
             Safan::handler()->getObjectManager()->setObject('gapOrmProfiler', $profiler);
-        }
-        else
+        } else {
             throw new DriverNotFound($dbConfig['driver']);
+        }
     }
 
     /**
@@ -62,7 +63,8 @@ class GapOrm
      *
      * @return mixed
      */
-    public static function getDriver(){
+    public static function getDriver()
+    {
         return self::$driverInstance;
     }
 }

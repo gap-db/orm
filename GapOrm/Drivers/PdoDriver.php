@@ -48,10 +48,13 @@ class PdoDriver
     /**
      * @return mixed
      */
-    public static function getInstance(){
+    public static function getInstance()
+    {
         $class_name = __CLASS__;
-        if(!isset(self::$instance[$class_name]) )
+
+        if (!isset(self::$instance[$class_name]) ) {
             self::$instance[$class_name] = new $class_name();
+        }
 
         return self::$instance[$class_name];
     }
@@ -59,31 +62,35 @@ class PdoDriver
     /**
      * @param array $config
      * @throws ConnectionParamsNotExistsException
+     * @return string
      */
-    public function setup(array $config){
+    public function setup(array $config)
+    {
         $dbHost = isset($config['host']) ? $config['host'] : false;
         $dbName = isset($config['db']) ? $config['db'] : false;
         $dbUser = isset($config['user']) ? $config['user'] : false;
         $dbPass = isset($config['password']) ? $config['password'] : false;
 
-        if(isset($config['debug']))
+        if (isset($config['debug'])) {
             $this->debug = $config['debug'];
+        }
 
-        if(!$dbHost || !$dbName || !$dbUser || !$dbPass)
+        if (!$dbHost || !$dbName || !$dbUser || !$dbPass) {
             throw new ConnectionParamsNotExistsException();
+        }
 
         try {
             $this->dbh = new \PDO('mysql:host='.$dbHost.';dbname=' . $dbName, $dbUser, $dbPass, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"]);
             $this->dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
-        }
-        catch (PDOException $e) {
-            if($this->debug === true)
+        } catch (PDOException $e) {
+            if ($this->debug === true) {
                 echo "\r\n<!-- PDO CONNECTION ERROR: " . $e->getMessage() . "-->\r\n";
+            }
 
             $this->connectionError = "Error!: " . $e->getMessage() . "<br/>";
             $this->dbh             = null;
 
-            return;
+            return $this->connectionError;
         }
     }
 
@@ -95,20 +102,22 @@ class PdoDriver
      * @return bool
      * @throws \GapOrm\Exceptions\NoConnectionException
      */
-    public function query($query, $params = []){
-        if (is_null($this->dbh))
+    public function query($query, $params = [])
+    {
+        if (is_null($this->dbh)) {
             throw new NoConnectionException();
+        }
 
-        try{
+        try {
             $this->sth = $this->dbh->prepare($query);
 
-            if($this->sth->execute($params))
+            if ($this->sth->execute($params)) {
                 return $this->debug = false;
+            }
 
             return $this->debug = true;
-        }
-        catch (PDOException $e){
-            return false;
+        } catch (PDOException $e) {
+            return $e->getMessage();
         }
     }
 
@@ -118,9 +127,11 @@ class PdoDriver
      * @return mixed
      * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function selectAll(){
-        if(is_null($this->sth))
+    public function selectAll()
+    {
+        if (is_null($this->sth)) {
             throw new QueryFailedException();
+        }
 
         return $this->sth->fetchAll(\PDO::FETCH_OBJ);
     }
@@ -131,26 +142,32 @@ class PdoDriver
      * @return null
      * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function selectOnce(){
-        if(is_null($this->sth))
+    public function selectOnce()
+    {
+        if (is_null($this->sth)) {
             throw new QueryFailedException();
+        }
 
         $result = $this->sth->fetch(\PDO::FETCH_OBJ);
 
-        if($result)
+        if ($result) {
             return $result;
+        }
 
         return null;
     }
+
     /**
      * Insert
      *
      * @return bool
      * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function insert(){
-        if(is_null($this->sth))
+    public function insert()
+    {
+        if (is_null($this->sth)) {
             throw new QueryFailedException();
+        }
 
         return ($this->dbh->lastInsertId() > 0) ? $this->dbh->lastInsertId() : false;
     }
@@ -161,12 +178,15 @@ class PdoDriver
      * @return bool
      * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function update(){
-        if(is_null($this->sth))
+    public function update()
+    {
+        if (is_null($this->sth)) {
             throw new QueryFailedException();
+        }
 
-        if($this->sth->rowCount() > 0)
+        if ($this->sth->rowCount() > 0) {
             return $this->sth->rowCount();
+        }
 
         return false;
     }
@@ -177,14 +197,41 @@ class PdoDriver
      * @return bool
      * @throws \GapOrm\Exceptions\QueryFailedException
      */
-    public function delete(){
-        if(is_null($this->sth))
+    public function delete()
+    {
+        if (is_null($this->sth)) {
             throw new QueryFailedException();
+        }
 
-        if($this->debug === true)
+        if ($this->debug === true) {
             return false;
+        }
 
         return true;
+    }
+
+    /**
+     * Begin transaction
+     */
+    public function beginTransaction()
+    {
+        $this->dbh->beginTransaction();
+    }
+
+    /**
+     * Begin transaction
+     */
+    public function commit()
+    {
+        $this->dbh->commit();
+    }
+
+    /**
+     * Begin transaction
+     */
+    public function rollBack()
+    {
+        $this->dbh->rollBack();
     }
 
     /**
@@ -194,21 +241,26 @@ class PdoDriver
      * @return boolean - true if table was found, false if not
      * @throws \GapOrm\Exceptions\NoConnectionException
      */
-    public function tableExists($tableName) {if (is_null($this->dbh))
-        if (is_null($this->dbh))
+    public function tableExists($tableName)
+    {
+        if (is_null($this->dbh)) {
             throw new NoConnectionException();
+        }
 
         $mrSql  = "SHOW TABLES LIKE :table_name";
         $mrStmt = $this->dbh->prepare($mrSql);
-        //protect from injection attacks
+
+        // protect from injection attacks
         $mrStmt->bindParam(":table_name", $tableName, \PDO::PARAM_STR);
 
         $sqlResult = $mrStmt->execute();
 
         if ($sqlResult) {
             $row = $mrStmt->fetch(\PDO::FETCH_NUM);
-            if ($row[0])
+
+            if ($row[0]) {
                 return true;
+            }
         }
 
         return false;
@@ -219,28 +271,30 @@ class PdoDriver
      *
      * @param $tableName
      * @param $fieldString
+     * @return string
      */
-    public function createTable($tableName, $fieldString){
+    public function createTable($tableName, $fieldString) {
         try {
             $sql = 'CREATE table ' . $tableName . ' ('. $fieldString . ');';
             $this->dbh->exec($sql);
-        }
-        catch(PDOException $e) {
-            echo $e->getMessage();
+        } catch (PDOException $e) {
+            return $e->getMessage();
         }
     }
 
     /**
+     * Create field
+     *
      * @param $tableName
      * @param $fieldString
+     * @return string
      */
-    public function createField($tableName, $fieldString){
+    public function createField($tableName, $fieldString) {
         try {
             $sql = 'ALTER TABLE ' . $tableName . ' ADD ' . $fieldString . ';';
             $this->dbh->exec($sql);
-        }
-        catch(PDOException $e) {
-            echo $e->getMessage();
+        } catch(PDOException $e) {
+            return $e->getMessage();
         }
     }
 }

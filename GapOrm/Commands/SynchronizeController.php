@@ -22,11 +22,13 @@ class SynchronizeController
      *
      * @Route ('GapOrm:synchronize')
      */
-    public function indexAction(){
+    public function indexAction()
+    {
         $models = $this->getAllModels();
 
-        foreach($models as $model)
+        foreach($models as $model) {
             $this->checkTable(new $model['namespace']);
+        }
     }
 
     /**
@@ -35,15 +37,19 @@ class SynchronizeController
      * @param $modelObj
      * @return bool
      */
-    private function checkTable($modelObj){
-        if(!method_exists($modelObj, 'table'))
+    private function checkTable($modelObj)
+    {
+        if (!method_exists($modelObj, 'table')) {
             return false;
+        }
+
         // get table name
         $tableName = $modelObj->table();
+
         // check table, add if not exist
         $existTable = PdoDriver::getInstance()->tableExists($tableName);
 
-        if(!$existTable){
+        if (!$existTable) {
             $this->createTable($tableName, $modelObj->getFields());
             CliManager::getMessage('Created table ' . $tableName);
         }
@@ -53,26 +59,31 @@ class SynchronizeController
         $dbFields = PdoDriver::getInstance()->selectAll();
 
         $modelFieldNames = [];
-        foreach($modelObj->getFields() as $modelField)
+
+        foreach ($modelObj->getFields() as $modelField) {
             $modelFieldNames[] = $modelField->identifier();
+        }
 
         // check db fields on model fields
         $dbFieldNames = [];
-        foreach($dbFields as $dbField){
-            if(!in_array($dbField->Field, $modelFieldNames))
+
+        foreach ($dbFields as $dbField) {
+            if (!in_array($dbField->Field, $modelFieldNames)) {
                 echo " --- Old field " . CliManager::setTextColor($dbField->Field, 'yellow') . " in table " . CliManager::setTextColor($modelObj->table(), 'green') . " --- \n\r";
+            }
 
             $dbFieldNames[] = $dbField->Field;
         }
 
         // check model fields on db fields
-        foreach($modelObj->getFields() as $key => $modelField){
-            if(!in_array($modelField->identifier(), $dbFieldNames)){
+        foreach ($modelObj->getFields() as $key => $modelField) {
+            if (!in_array($modelField->identifier(), $dbFieldNames)) {
                 // Add new fields to db table
                 $previousField = false;
 
-                if(isset($modelObj->getFields()[$key-1]))
+                if (isset($modelObj->getFields()[$key-1])) {
                     $previousField = $modelObj->getFields()[$key-1];
+                }
 
                 $this->createField($tableName, $modelField, $previousField);
                 echo CliManager::setTextColor(" --- Add New field " . $modelField->identifier() . " in table " . $modelObj->table(), 'green') . " --- \n\r";
@@ -85,23 +96,26 @@ class SynchronizeController
      *
      * @return array
      */
-    private function getAllModels(){
-        $modules = Safan::handler()->getModules();
-
+    private function getAllModels()
+    {
+        $modules      = Safan::handler()->getModules();
         $modelClasses = [];
+
         foreach ($modules as $moduleName => $modulePath) {
             $modelsPath = APP_BASE_PATH . DS . $modulePath . DS . 'Models';
 
             $modelFiles = [];
-            if (is_dir($modelsPath))
-                $modelFiles = scandir($modelsPath);
 
-            foreach($modelFiles as $modelFile){
-                if($modelFile != '.' && $modelFile != '..' && is_dir($modelsPath . DS . $modelFile)){
+            if (is_dir($modelsPath)) {
+                $modelFiles = scandir($modelsPath);
+            }
+
+            foreach ($modelFiles as $modelFile) {
+                if ($modelFile != '.' && $modelFile != '..' && is_dir($modelsPath . DS . $modelFile)) {
                     $subModelFiles = scandir($modelsPath . DS . $modelFile);
 
-                    foreach($subModelFiles as $subModelFile){
-                        if($subModelFile != '.' && $subModelFile != '..' && is_file($modelsPath . DS . $modelFile . DS . $subModelFile)){
+                    foreach ($subModelFiles as $subModelFile) {
+                        if ($subModelFile != '.' && $subModelFile != '..' && is_file($modelsPath . DS . $modelFile . DS . $subModelFile)) {
                             $subModelName   = substr($subModelFile, 0, -4);
                             $modelClasses[] = [
                                 'name'      => $subModelName,
@@ -110,8 +124,7 @@ class SynchronizeController
                             ];
                         }
                     }
-                }
-                elseif($modelFile != '.' && $modelFile != '..' && is_file($modelsPath . DS . $modelFile)){
+                } elseif ($modelFile != '.' && $modelFile != '..' && is_file($modelsPath . DS . $modelFile)) {
                     $modelName      = substr($modelFile, 0, -4);
                     $modelClasses[] = [
                         'name'      => $modelName,
@@ -132,30 +145,36 @@ class SynchronizeController
      * @return bool
      * @throws TypeNotExistException
      */
-    private function createTable($tableName, $fields){
-        if(empty($fields))
+    private function createTable($tableName, $fields)
+    {
+        if (empty($fields)) {
             return false;
+        }
 
         $fieldString = '';
-        foreach($fields as $num => $field){
+
+        foreach ($fields as $num => $field) {
             switch ($field->type()) {
                 case BaseModel::FIELD_TYPE_BOOL :
                         $str = $field->identifier() . ' INT( 11 )';
                     break;
                 case BaseModel::FIELD_TYPE_INT :
-                        if($field->identifier() == 'id')
+                        if ($field->identifier() == 'id') {
                             $str = 'id INT( 11 ) AUTO_INCREMENT PRIMARY KEY';
-                        else
+                        } else {
                             $str = $field->identifier() . ' INT( 11 ) NOT NULL DEFAULT 0';
+                        }
                     break;
                 case BaseModel::FIELD_TYPE_FLOAT :
                         $str = $field->identifier() . ' FLOAT NOT NULL';
                     break;
                 case BaseModel::FIELD_TYPE_STR :
-                        if($field->length() > 0)
+                        if ($field->length() > 0) {
                             $length = $field->length();
-                        else
+                        } else {
                             $length = 255;
+                        }
+
                         $str = $field->identifier() . ' VARCHAR( '. $length .' ) NOT NULL';
                     break;
                 case BaseModel::FIELD_TYPE_DATETIME :
@@ -175,8 +194,9 @@ class SynchronizeController
             }
 
             // add separator
-            if(($num+1) < sizeof($fields))
+            if (($num+1) < sizeof($fields)) {
                 $str .= ', ';
+            }
 
             $fieldString .= $str;
         }
@@ -191,25 +211,30 @@ class SynchronizeController
      * @return mixed
      * @throws TypeNotExistException
      */
-    public function createField($tableName, $field, $previousField){
+    public function createField($tableName, $field, $previousField)
+    {
         switch ($field->type()) {
             case BaseModel::FIELD_TYPE_BOOL :
                 $fieldString = $field->identifier() . ' INT( 11 )';
                 break;
             case BaseModel::FIELD_TYPE_INT :
-                if($field->identifier() == 'id')
+                if ($field->identifier() == 'id') {
                     $fieldString = ' INT( 11 ) AUTO_INCREMENT PRIMARY KEY';
-                else
+                } else {
                     $fieldString = $field->identifier() . ' INT( 11 ) NOT NULL DEFAULT 0';
+                }
+
                 break;
             case BaseModel::FIELD_TYPE_FLOAT :
                     $fieldString = $field->identifier() . ' FLOAT NOT NULL';
                 break;
             case BaseModel::FIELD_TYPE_STR :
-                    if($field->length() > 0)
+                    if ($field->length() > 0) {
                         $length = $field->length();
-                    else
+                    } else {
                         $length = 255;
+                    }
+
                     $fieldString = $field->identifier() . ' VARCHAR( '. $length .' ) NOT NULL';
                 break;
             case BaseModel::FIELD_TYPE_DATETIME :
@@ -228,10 +253,11 @@ class SynchronizeController
                 throw new TypeNotExistException();
         }
 
-        if($previousField)
+        if ($previousField) {
             $after = ' AFTER ' . $previousField->identifier();
-        else
+        } else {
             $after = ' FIRST';
+        }
 
         $fieldString = $fieldString . $after;
 

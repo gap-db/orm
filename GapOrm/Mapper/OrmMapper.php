@@ -72,35 +72,40 @@ class OrmMapper
     /**
      * @return string
      */
-    protected function getQuery(){
+    protected function getQuery()
+    {
         return $this->query;
     }
 
     /**
      * @param $query
      */
-    protected function setQuery($query){
+    protected function setQuery($query)
+    {
         $this->query = $query;
     }
 
     /**
      * @return array
      */
-    protected function getParams(){
+    protected function getParams()
+    {
         return $this->params;
     }
 
     /**
      * @param $params
      */
-    protected function setParams($params){
+    protected function setParams($params)
+    {
         $this->params[] = $params;
     }
 
     /**
      * @return array
      */
-    protected function getJoins(){
+    protected function getJoins()
+    {
         return $this->joins;
     }
 
@@ -110,112 +115,128 @@ class OrmMapper
      * @param $tableName
      * @param $join
      */
-    protected function setJoins($tableName, $join){
+    protected function setJoins($tableName, $join)
+    {
         $this->joins[$tableName] = $join;
     }
 
     /**
      * @return mixed
      */
-    protected function getWhere(){
+    protected function getWhere()
+    {
         return $this->where;
     }
 
     /**
      * @param $where
      */
-    protected function setWhere($where){
+    protected function setWhere($where)
+    {
         $this->where = $where;
     }
 
     /**
      * @return mixed
      */
-    protected function getIn(){
+    protected function getIn()
+    {
         return $this->in;
     }
 
     /**
      * @param $in
      */
-    protected function setIn($in){
+    protected function setIn($in)
+    {
         $this->in = $in;
     }
 
     /**
      * @return mixed
      */
-    protected function getOrderBy(){
+    protected function getOrderBy()
+    {
         return $this->orderBy;
     }
 
     /**
      * @param $orderBy
      */
-    protected function setOrderBy($orderBy){
+    protected function setOrderBy($orderBy)
+    {
         $this->orderBy = $orderBy;
     }
 
     /**
      * @return mixed
      */
-    protected function getGroupBy(){
+    protected function getGroupBy()
+    {
         return $this->groupBy;
     }
 
     /**
      * @param $groupBy
      */
-    protected function setGroupBy($groupBy){
+    protected function setGroupBy($groupBy)
+    {
         $this->groupBy = $groupBy;
     }
 
     /**
      * @return mixed
      */
-    protected function getLimit(){
+    protected function getLimit()
+    {
         return $this->limit;
     }
 
     /**
      * @param $limit
      */
-    protected function setLimit($limit){
+    protected function setLimit($limit)
+    {
         $this->limit = $limit;
     }
 
     /**
      * @return bool
      */
-    protected function getLimitStart(){
+    protected function getLimitStart()
+    {
         return $this->limitStart;
     }
 
     /**
      * @param $limitStart
      */
-    protected function setLimitStart($limitStart){
+    protected function setLimitStart($limitStart)
+    {
         $this->limitStart = $limitStart;
     }
 
     /**
      * @return bool
      */
-    protected function getLimitEnd(){
+    protected function getLimitEnd()
+    {
         return $this->limitEnd;
     }
 
     /**
      * @param $limitEnd
      */
-    protected function setLimitEnd($limitEnd){
+    protected function setLimitEnd($limitEnd)
+    {
         $this->limitEnd = $limitEnd;
     }
 
     /**
      * Set params default value
      */
-    protected function clearParams(){
+    protected function clearParams()
+    {
         $this->limit      = null;
         $this->limitStart = false;
         $this->limitEnd   = false;
@@ -231,14 +252,16 @@ class OrmMapper
     /**
      * Enable dump for view query
      */
-    public function enableQueryDump(){
+    public function enableQueryDump()
+    {
         $this->dumpQueryOnce = true;
     }
 
     /**
      * @return bool
      */
-    protected function isQueryDumpEnabled(){
+    protected function isQueryDumpEnabled()
+    {
         return $this->dumpQueryOnce;
     }
 }
