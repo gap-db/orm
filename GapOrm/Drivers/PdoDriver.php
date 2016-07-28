@@ -275,7 +275,7 @@ class PdoDriver
      */
     public function createTable($tableName, $fieldString) {
         try {
-            $sql = 'CREATE table ' . $tableName . ' ('. $fieldString . ');';
+            $sql = 'CREATE table ' . $tableName . ' ('. $fieldString . ') ENGINE=InnoDB CHARACTER SET=utf8;';
             $this->dbh->exec($sql);
         } catch (PDOException $e) {
             return $e->getMessage();
